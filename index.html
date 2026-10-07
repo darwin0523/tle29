@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TLE Adventure: Kitchen Kingdom &amp; Word Wonderland</title>
+<style>
+:root{--bg:#d9f3f0;--card:#fff;--ink:#17324d;--acc:#ff7a3d;--ok:#2e9e5b;--bad:#d64545;--soft:#e8f6f3;--sand:#fbe9b7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d2230;--card:#173448;--ink:#e8f6ff;--soft:#21465e;--sand:#4a4426}}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(var(--bg),var(--soft));color:var(--ink);font-family:system-ui,sans-serif;padding:12px;text-align:center;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto}
+h1{font-size:1.5rem;margin:4px 0}h2{font-size:1rem;margin:12px 0 4px}
+.sub{opacity:.8;font-size:.85rem}.hide{display:none!important}
+.card{background:var(--card);border-radius:18px;padding:12px;box-shadow:0 3px 10px #0003;margin:8px 0}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;color:inherit}
+.b{background:var(--acc);color:#fff;padding:12px 20px;font-weight:800;margin:4px}
+.b.alt{background:var(--soft);color:var(--ink)}
+.chip{background:var(--soft);padding:8px 12px;margin:3px;font-weight:700;border:2px solid transparent}
+.chip.on{border-color:var(--acc)}
+input,select,textarea{font:inherit;color:inherit;background:var(--soft);border:0;border-radius:10px;padding:8px}
+textarea{width:100%;height:190px;font-size:.78rem;text-align:left}
+.pl{display:flex;gap:4px;justify-content:center;align-items:center;margin:4px}
+.pl input{width:130px}
+.board{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(5,1fr);gap:4px;background:var(--sand);padding:6px;border-radius:16px;margin:8px 0}
+.tile{aspect-ratio:1;border-radius:10px;background:var(--card);position:relative;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.tile small{position:absolute;top:1px;left:4px;font-size:.55rem;opacity:.6}
+.tile.s{background:#fff3b0;color:#333}.tile.t{background:#ffd0d0;color:#333}.tile.f{background:#ffd166;color:#333}.tile.cur{outline:3px solid var(--acc)}
+.tk{position:absolute;bottom:-2px;right:0;font-size:.95rem;line-height:1;display:flex;flex-wrap:wrap;justify-content:flex-end;max-width:100%}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.dice{width:54px;height:54px;border-radius:12px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;box-shadow:0 2px 6px #0003}
+.stars{font-size:.85rem;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;padding:12px;z-index:5}
+#mc{background:var(--card);border-radius:20px;padding:16px;width:100%;max-width:440px;max-height:92vh;overflow:auto}
+.pic{font-size:4.6rem;line-height:1.1}.q{font-size:1.2rem;font-weight:800;margin:8px 0}
+.bar{height:8px;background:var(--soft);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--acc);width:100%;transition:width 1s linear}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{background:var(--soft);padding:14px 6px;font-weight:800}.ok{background:var(--ok)!important;color:#fff}.no{background:var(--bad)!important;color:#fff}
+.lt{display:inline-flex;width:40px;height:44px;margin:3px;border-radius:10px;background:var(--acc);color:#fff;font-weight:900;font-size:1.2rem;align-items:center;justify-content:center;cursor:pointer}
+.lt.sl{background:var(--soft);color:var(--ink);border:2px dashed var(--acc)}
+.mg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mc{aspect-ratio:1;background:var(--acc);color:#fff;font-size:1.4rem;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:14px;padding:2px}
+.mc.up{background:var(--soft);color:var(--ink)}.mc.dn{background:var(--ok);color:#fff}
+.mc{font-size:.8rem;line-height:1.15}
+.row{display:flex;justify-content:space-between;padding:8px 12px;border-radius:10px;background:var(--soft);margin:5px 0;font-weight:700}.row.w{background:var(--acc);color:#fff}
+.fall{position:fixed;top:-30px;font-size:1.8rem;animation:fl 2.4s linear forwards;pointer-events:none;z-index:9}@keyframes fl{to{transform:translateY(110vh) rotate(360deg)}}
+.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+</style></head><body><div class="wrap">
+
+<div id="setup">
+ <div style="font-size:2.2rem">🗺️⚔️🏰🐉</div>
+ <h1>TLE Adventure</h1>
+ <div class="sub">Grade 6 · Term 2 Week 4 · Roll, race and solve challenges to win!</div>
+ <div class="card"><h2>Choose your kingdom</h2>
+  <button class="chip on" id="w0">🍳 Kitchen Kingdom (FCS)</button><button class="chip" id="w1">💻 Word Wonderland (ICT)</button>
+  <h2>Players / Teams</h2>
+  <select id="pn"><option value="1">1 (Solo)</option><option>2</option><option>3</option><option selected>4</option></select>
+  <div id="pnames"></div>
+  <h2>Challenge timer</h2>
+  <select id="spd"><option value="1">Normal (quiz 20s · puzzle 30s · cards 45s)</option><option value="2">Long (1 to 2 minutes)</option></select>
+  <div class="sub" style="margin-top:8px">🎲 Roll and move. ❓🔤🃏 = challenge: win → +1 step &amp; ⭐, lose → back 2. ⭐ bonus +2 · 🌀 trap −2</div>
+ </div>
+ <button class="b" id="play" style="font-size:1.2rem;padding:15px 30px">▶ Start Adventure</button><br>
+ <button class="b alt" id="edit">✏️ Edit questions &amp; puzzles</button>
+</div>
+
+<div id="editor" class="hide">
+ <h1>✏️ Edit</h1>
+ <div class="card"><h2 id="eh">Quiz: Topic | Picture emoji | Question | Correct | Wrong | (Wrong)</h2><textarea id="tq"></textarea>
+ <h2>Card match: Item | Meaning (need 3+ lines)</h2><textarea id="tm" style="height:90px"></textarea>
+ <h2>Word scramble: WORD | Hint</h2><textarea id="tw" style="height:100px"></textarea></div>
+ <button class="b" id="save">💾 Save</button><button class="b alt" id="reset">Reset</button><button class="b alt" id="back">← Back</button>
+ <div class="sub" id="emsg"></div>
+</div>
+
+<div id="game" class="hide">
+ <div class="hud"><div class="dice" id="dice">🎲</div><div><b id="turn"></b></div><button class="b" id="roll">🎲 Roll!</button></div>
+ <div class="board" id="board"></div>
+ <div class="stars" id="stars"></div>
+ <div class="sub" id="toast" style="min-height:1.4em;margin-top:6px"></div>
+</div>
+
+<div id="end" class="hide"><h1 id="et"></h1><div class="card" id="eb"></div><button class="b" id="again">↺ Play again</button></div>
+</div>
+<div id="modal" class="hide"><div id="mc"></div></div>
+
+<script>
+const KQ=`Kitchen Tools|🥄|Which tool is used for stirring, mixing and serving food?|Spoon|Fork|Peeler
+Kitchen Tools|🍴|Which tool is used for picking up and holding food?|Fork|Whisk|Grater
+Kitchen Tools|🔪|Which tool is used for cutting and slicing food?|Kitchen knife|Spoon|Whisk
+Kitchen Tools|🪵|The chopping board gives a safe ___ for cutting food.|Surface|Handle|Heater
+Kitchen Tools|🥕|Which tool removes the skin of fruits and vegetables?|Peeler|Grater|Mixing bowl
+Kitchen Tools|🧀|Which tool is used for shredding or grating food?|Grater|Peeler|Fork
+Kitchen Tools|🥣|Which tool is used for mixing ingredients?|Mixing bowl|Chopping board|Measuring spoon
+Kitchen Tools|🥄|Which tool measures small amounts of ingredients?|Measuring spoon|Measuring cup|Whisk
+Kitchen Tools|🥛|Which tool measures liquids and dry ingredients?|Measuring cup|Peeler|Fork
+Kitchen Tools|🥚|Which tool is used for beating ingredients?|Whisk|Spoon|Grater
+Tool or Equipment|🔪|A kitchen knife is a...|Tool|Equipment
+Tool or Equipment|🧊|A refrigerator is...|Equipment|Tool
+Tool or Equipment|🍚|A rice cooker is...|Equipment|Tool
+Tool or Equipment|🥄|A spoon is a...|Tool|Equipment
+Tool or Equipment|🔥|A stove is...|Equipment|Tool
+Tool or Equipment|🥤|A blender is...|Equipment|Tool
+Tool or Equipment|🥕|A peeler is a...|Tool|Equipment
+Tool or Equipment|🥧|An oven is...|Equipment|Tool
+Equipment Safety|🍳|Use carefully around heat and hot oil. Which equipment?|Frying pan|Refrigerator|Blender
+Equipment Safety|🍲|Use pot holders when hot. Which equipment?|Cooking pot|Rice cooker|Refrigerator
+Equipment Safety|🔥|Keep flammable objects away from the flame. Which equipment?|Stove|Blender|Refrigerator
+Equipment Safety|🍚|Keep electrical parts dry. Which equipment?|Rice cooker|Cooking pot|Frying pan
+Equipment Safety|🧊|Keep the door closed properly. Which equipment?|Refrigerator|Oven|Stove
+Equipment Safety|🧤|Use oven mitts when handling hot items. Which equipment?|Oven|Refrigerator|Blender
+Equipment Safety|🥤|Make sure the lid is secure before operating. Which equipment?|Blender|Oven|Stove
+Equipment Safety|🍰|Turn it off before removing the beaters. Which equipment?|Electric mixer|Stove|Frying pan`;
+const KM=`🔪 Kitchen knife|Cutting and slicing food
+🥕 Peeler|Removing skin of vegetables
+🧀 Grater|Shredding food
+🥚 Whisk|Beating ingredients
+🪵 Chopping board|Surface for cutting
+🥣 Mixing bowl|Mixing ingredients
+🥄 Measuring spoon|Measuring small amounts
+🥛 Measuring cup|Measuring liquids and dry ingredients
+🍚 Rice cooker|Cooking rice
+🧊 Refrigerator|Keeps food cold`;
+const KW=`SPOON|Used for stirring and serving food
+WHISK|Beats and mixes ingredients
+PEELER|Removes the skin of vegetables
+GRATER|Shreds or grates food
+KNIFE|Cuts and slices food
+STOVE|Provides heat for cooking
+BLENDER|Blends food and drinks
+OVEN|Used for baking and roasting
+EQUIPMENT|Larger kitchen item for cooking
+MEASURING|A cup or spoon does this to ingredients`;
+const WQ=`Word Features|💧|Which feature places faint text behind the content?|Watermark|Header|Page Color
+Word Features|🎨|Which feature changes the background color of the page?|Page Color|Watermark|Footer
+Word Features|🖼️|Which feature adds a line or design around the page?|Page Border|Page Number|Header
+Word Features|🔢|Which feature shows the number of each page?|Page Number|Footer|Watermark
+Word Features|⬆️|Information placed at the top of every page goes in the...|Header|Footer|Border
+Word Features|⬇️|Information placed at the bottom of every page goes in the...|Footer|Header|Watermark
+Word Features|📝|You want to mark a document as "SAMPLE". Which feature?|Watermark|Page Border|Page Number
+Steps|🧭|Which tab has Watermark, Page Color and Page Borders?|Design|Insert|Home
+Steps|🧭|Which tab has Page Number, Header and Footer?|Insert|Design|View
+Steps|🖱️|Design → Page Borders → select a border style → ...|OK|Print|Delete
+Steps|🔢|To add page numbers, go to Insert → ...|Page Number|Watermark|Page Color
+My School Sheet|🏫|The header of the My School sheet is the...|Name of school|Learner's name|Page number
+My School Sheet|👤|The footer of the My School sheet is the...|Learner's name and grade/section|Name of school|Watermark
+My School Sheet|🏷️|The watermark for the My School sheet is...|SCHOOL|DRAFT|SAMPLE
+My School Sheet|📜|The certificate's footer shows the...|School year|Recipient's name|Header
+My School Sheet|✍️|The school information sheet needs how many sentences?|5 to 7|1 to 2|20 or more
+Basics|📄|Word documents are saved with this extension.|.docx|.mp3|.png
+Basics|✨|Why use formatting features?|To make documents organized and presentable|To delete text|To slow the computer
+Basics|💻|Which program is used to make a Word document?|Microsoft Word|Calculator|Paint`;
+const WM=`💧 Watermark|Faint text behind the content
+🎨 Page Color|Changes the page background
+🖼️ Page Border|Line or design around the page
+🔢 Page Number|Shows the number of each page
+⬆️ Header|Top of every page
+⬇️ Footer|Bottom of every page`;
+const WW=`WATERMARK|Faint text behind your content
+HEADER|Top of every page
+FOOTER|Bottom of every page
+BORDER|A line or design around the page
+DESIGN|Tab where you find Page Color
+INSERT|Tab where you find Page Number
+DOCUMENT|A Word file
+CERTIFICATE|You make this on the last day
+FORMATTING|Making a document look organized`;
+const WORLDS=[{k:"k",s:"🧑‍🍳",e:"🍰",d:[KQ,KM,KW]},{k:"w",s:"💻",e:"🏆",d:[WQ,WM,WW]}];
+let wi=0;
+
+const $=id=>document.getElementById(id),R=a=>a[Math.random()*a.length|0],S=a=>[...a].sort(()=>Math.random()-.5);
+const AV=["🦊","🐯","🐼","🦄"],END=29,TY={q:"❓",s:"🔤",m:"🃏",b:"⭐",t:"🌀"};
+let Q=[],M=[],W=[],P=[],cur=0,busy=false,deck=[],mult=1,ct=null;
+const tileType=i=>i==0?"start":i==END?"fin":i%7==0?"b":i%11==0?"t":["q","q","s","q","m"][i%5];
+function rd(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
+function loadW(){const W0=WORLDS[wi];["tq","tm","tw"].forEach((id,n)=>$(id).value=rd("tle"+W0.k+n,W0.d[n]));parse()}
+$("w0").onclick=()=>pickW(0);$("w1").onclick=()=>pickW(1);
+function pickW(i){wi=i;$("w0").classList.toggle("on",i==0);$("w1").classList.toggle("on",i==1);loadW()}
+function parse(){Q=$("tq").value.split("\n").map(l=>l.split("|").map(x=>x.trim())).filter(p=>p.length>=5).map(p=>({c:p[0],p:p[1],q:p[2],a:p[3],w:p.slice(4).filter(Boolean)}));
+ M=$("tm").value.split("\n").map(l=>l.split("|").map(x=>x.trim())).filter(p=>p.length>=2&&p[0]&&p[1]);
+ W=$("tw").value.split("\n").map(l=>l.split("|").map(x=>x.trim())).filter(p=>p[0]).map(p=>({w:p[0].toUpperCase().replace(/ /g,""),h:p[1]||""}))}
+function show(id){["setup","editor","game","end"].forEach(x=>$(x).classList.toggle("hide",x!==id))}
+function pn(){const n=+$("pn").value;$("pnames").innerHTML=Array.from({length:n},(_,i)=>`<div class="pl">${AV[i]}<input value="${n==1?"Explorer":"Team "+(i+1)}" maxlength="14"></div>`).join("")}
+$("pn").onchange=pn;
+$("edit").onclick=()=>show("editor");$("back").onclick=()=>show("setup");
+$("save").onclick=()=>{parse();try{["tq","tm","tw"].forEach((id,n)=>localStorage.setItem("tle"+WORLDS[wi].k+n,$(id).value))}catch(e){}$("emsg").textContent=`✅ Saved: ${Q.length} questions, ${M.length} cards, ${W.length} words`};
+$("reset").onclick=()=>{try{[0,1,2].forEach(n=>localStorage.removeItem("tle"+WORLDS[wi].k+n))}catch(e){}loadW();$("emsg").textContent="Reset to default."};
+$("play").onclick=()=>{parse();
+ if(Q.length<3||W.length<1||M.length<3){alert("Need at least 3 questions, 3 card pairs and 1 word.");return}
+ mult=+$("spd").value;
+ P=[...$("pnames").querySelectorAll("input")].map((e,i)=>({n:e.value||"Team "+(i+1),av:AV[i],pos:0,st:0,t:0}));
+ cur=0;busy=false;deck=[];draw();show("game")};
+function draw(){
+ let h="";
+ for(let i=0;i<=END;i++){const r=i/6|0,c=r%2?5-i%6:i%6,t=tileType(i),ic=i==0?WORLDS[wi].s:i==END?WORLDS[wi].e:TY[t];
+  const tk=P.filter(p=>p.pos==i).map(p=>p.av).join("");
+  h+=`<div class="tile ${t=="b"?"s":t=="t"?"t":t=="fin"?"f":""} ${P[cur].pos==i?"cur":""}" style="grid-column:${c+1};grid-row:${5-r}"><small>${i}</small>${ic}<span class="tk">${tk}</span></div>`}
+ $("board").innerHTML=h;
+ $("turn").textContent=P[cur].av+" "+P[cur].n+"'s turn";
+ $("stars").innerHTML=P.map(p=>`<span>${p.av} ${p.n}: ⭐${p.st}</span>`).join("");
+}
+function toast(t){$("toast").textContent=t}
+$("roll").onclick=()=>{if(busy)return;busy=true;toast("");let n=0;
+ const iv=setInterval(()=>{$("dice").textContent=1+(Math.random()*6|0);if(++n>9){clearInterval(iv);const d=1+(Math.random()*6|0);$("dice").textContent=d;move(P[cur],d,()=>land(P[cur]))}},70)};
+function move(p,s,cb){const dir=s<0?-1:1;let k=Math.abs(s);
+ const iv=setInterval(()=>{if(k<=0||(dir>0&&p.pos>=END)||(dir<0&&p.pos<=0)){clearInterval(iv);cb();return}p.pos+=dir;k--;draw()},260)}
+function land(p){
+ if(p.pos>=END)return win();
+ const t=tileType(p.pos);
+ if(t=="b"){toast("⭐ Bonus tile! Move 2 forward!");move(p,2,after)}
+ else if(t=="t"){toast("🌀 Whirlpool! Go back 2!");move(p,-2,after)}
+ else if(t=="start"){after()}
+ else challenge(t,ok=>{p.t++;if(ok){p.st++;toast("✅ Great! +1 step & ⭐");move(p,1,after)}else{toast("❌ Oops! Back 2 steps");move(p,-2,after)}})}
+function after(){if(P[cur].pos>=END)return win();cur=(cur+1)%P.length;busy=false;draw()}
+// ---- challenges
+function modal(h){$("mc").innerHTML=h;$("modal").classList.remove("hide")}
+function timer(sec,fail){clearInterval(ct);let l=sec;const b=$("tb");b.style.transition="none";b.style.width="100%";setTimeout(()=>{b.style.transition="width 1s linear"},30);
+ ct=setInterval(()=>{l--;b.style.width=(l/sec*100)+"%";if(l<=0){clearInterval(ct);fail()}},1000)}
+function done(ok,msg,cb){clearInterval(ct);$("mc").insertAdjacentHTML("beforeend",`<div class="q">${ok?"🎉 ":"⏰ "}${msg}</div>`);setTimeout(()=>{$("modal").classList.add("hide");cb(ok)},1100)}
+function challenge(t,cb){({q:quiz,s:scr,m:mem})[t](cb)}
+function quiz(cb){
+ if(!deck.length)deck=S(Q);const b=deck.pop();let lock=false;
+ modal(`<div class="sub">${b.c}</div><div class="pic">${b.p}</div><div class="q">${b.q}</div><div class="bar"><i id="tb"></i></div><div class="opts">${S([b.a,...b.w]).map(o=>`<button class="opt">${o}</button>`).join("")}</div>`);
+ timer(20*mult,()=>{lock=true;done(false,"Time's up! Answer: "+b.a,cb)});
+ document.querySelectorAll(".opt").forEach(e=>e.onclick=()=>{if(lock)return;lock=true;const ok=e.textContent==b.a;e.classList.add(ok?"ok":"no");done(ok,ok?"Correct!":"Answer: "+b.a,cb)})}
+function scr(cb){
+ const x=R(W);let ans=[],lt=[],lock=false;
+ do{lt=S(x.w.split("").map((c,i)=>({c,i,u:false})))}while(x.w.length>2&&lt.map(l=>l.c).join("")==x.w);
+ modal(`<div class="sub">🔤 Word Scramble</div><div class="pic">🧩</div><div class="q">${x.h||"Unscramble the word!"}</div><div class="bar"><i id="tb"></i></div><div id="an"></div><div id="lt" style="margin:8px 0"></div><button class="b alt" id="cl">↺ Clear</button>`);
+ const rn=()=>{$("an").innerHTML=Array.from({length:x.w.length},(_,k)=>`<span class="lt sl" data-k="${k}">${ans[k]!=null?lt[ans[k]].c:""}</span>`).join("");
+  $("lt").innerHTML=lt.map((l,k)=>`<span class="lt" data-k="${k}" style="${l.u?"visibility:hidden":""}">${l.c}</span>`).join("");
+  $("an").querySelectorAll(".lt").forEach(e=>e.onclick=()=>{if(lock)return;const k=+e.dataset.k;if(ans[k]!=null){lt[ans[k]].u=false;ans.splice(k,1);rn()}});
+  $("lt").querySelectorAll(".lt").forEach(e=>e.onclick=()=>{if(lock)return;const k=+e.dataset.k;if(lt[k].u)return;lt[k].u=true;ans.push(k);rn();
+   if(ans.length==x.w.length){if(ans.map(a=>lt[a].c).join("")==x.w){lock=true;done(true,"Correct: "+x.w,cb)}else{$("an").classList.add("shake");setTimeout(()=>{$("an").classList.remove("shake");lt.forEach(l=>l.u=false);ans=[];rn()},450)}}})};
+ $("cl").onclick=()=>{if(lock)return;lt.forEach(l=>l.u=false);ans=[];rn()};rn();
+ timer(30*mult,()=>{lock=true;done(false,"The word was "+x.w,cb)})}
+function mem(cb){
+ let cards=[];
+ S(M).slice(0,3).forEach((m,k)=>{cards.push({k,e:m[0],t:"p"},{k,e:m[1],t:"l"})});cards=S(cards);
+ let open=[],lock=false,found=0;
+ modal(`<div class="sub">🃏 Match each item with its meaning</div><div class="bar"><i id="tb"></i></div><div class="mg" id="mg"></div>`);
+ const rn=()=>{$("mg").innerHTML=cards.map((c,i)=>`<div class="mc ${c.d?"dn":open.includes(i)?"up":""}" data-i="${i}">${c.d||open.includes(i)?(c.t=="p"?`<span class="e">${c.e}</span>`:c.e):"?"}</div>`).join("");
+  $("mg").querySelectorAll(".mc").forEach(e=>e.onclick=()=>{const i=+e.dataset.i;if(lock||cards[i].d||open.includes(i))return;open.push(i);rn();
+   if(open.length==2){lock=true;const[a,b]=open.map(j=>cards[j]);setTimeout(()=>{if(a.k==b.k&&a.t!=b.t){a.d=b.d=true;found++}open=[];lock=false;rn();if(found==3){lock=true;done(true,"All matched!",cb)}},750)}})};
+ rn();timer(45*mult,()=>{lock=true;done(false,"Time's up!",cb)})}
+// ---- end
+function win(){clearInterval(ct);const r=[...P].sort((a,b)=>b.pos-a.pos||b.st-a.st);
+ $("et").textContent=P.length==1?"🏆 You completed the quest!":"🏆 "+r[0].n+" wins the quest!";
+ $("eb").innerHTML=r.map((p,i)=>`<div class="row ${i==0?"w":""}"><span>${i+1}. ${p.av} ${p.n}</span><span>⭐ ${p.st} · tile ${p.pos}</span></div>`).join("");
+ show("end");for(let k=0;k<26;k++){const e=document.createElement("div");e.className="fall";e.textContent=["🎉","⭐","💪","🏆","🦜"][k%5];e.style.left=Math.random()*95+"vw";e.style.animationDelay=Math.random()*.9+"s";document.body.appendChild(e);setTimeout(()=>e.remove(),3400)}}
+$("again").onclick=()=>show("setup");
+loadW();pn();
+</script></body></html>
